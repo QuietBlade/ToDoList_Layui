@@ -74,13 +74,13 @@
                 var form = layui.form
                 var $ = layui.jquery
 
-                function Refresh(){
+                function Refresh() {
                     table.reload("content", {
                         data: JSON.parse(window.localStorage.getItem("data"))
                     });
                 }
 
-                table = $.extend(table, { config: { checkName: 'state' } });
+                table = $.extend(table, { config: { checkName: 'state' } }); // 设置初始复选框状态
                 var tableIns = table.render({
                     elem: '#content'
                     // , url: './data.json' //数据接口
@@ -89,11 +89,11 @@
                     //         "code": res.code,
                     //         "msg": res.msg,
                     //         "count": res.count,
-                    //         "data": JSON.parse(window.localStorage.getItem("data")) //解析数据列表
+                    //         "data": getData() //解析数据列表
                     //     };
                     // }
                     // 这里注释是 请求了 ajax 地址,如果要使用ajax,注释掉 data 数据就行
-                    , data: JSON.parse(window.localStorage.getItem("data"))
+                    , data: SortItem(getData())
                     , page: true
                     , limit: 30
                     , text: {
@@ -106,15 +106,16 @@
                         , { field: 'content', title: '正文', edit: 'text', templet: '#deleteTpl' }
                         , { fixed: 'right', title: '操作', toolbar: '#delItem', width: 80 }
                     ]]
-                    , initSort: () => {
-                        if (JSON.parse(window.localStorage.getItem("data"))) // 如果是空数组 ， 不进行数据排序 是因为如果初始数据为空，table无法显示 提示无数据信息
-                            return {} 
-                        else
-                            return {
-                                field: 'state' //排序字段，对应 cols 设定的各字段名
-                                , type: 'asc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
-                            }
+                    ,done: function(res, curr, count){
+                        console.log(res)
+                        res.data = []
+                        return res
+                        // res.data = [{}]
                     }
+                    // , initSort: ({
+                    //     field: 'state' //排序字段，对应 cols 设定的各字段名
+                    //     , type: 'asc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+                    // }) // 不进行数据排序 是因为如果初始数据为空，table无法显示 提示无数据信息
                 });
 
                 // 监听工具栏
@@ -146,6 +147,7 @@
                         temp.removeAttribute("class")
                         ChangeItem(obj.data, 0) // 更改为未完成
                     }
+                    Refresh()
                 });
 
                 // 监听添加按钮

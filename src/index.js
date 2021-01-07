@@ -66,13 +66,13 @@ function init() {
 // 添加/保存 事项
 function SaveItem(obj) {
     var data = getData()
+    var index = 0
+    if (data.length == 0)
+        index = data.length
+    else
+        index = data[data.length - 1].index + 1
     json = {
-        index: () => {
-            if (data.length == 0)
-                return data.length
-            else
-                return data[data.length - 1].index + 1
-        },  // 累加 index 避免冲突 , 当 长度为 0 时 重置index
+        index: index, // 累加 index 避免冲突 , 当 长度为 0 时 重置index
         content: obj.content,
         state: 0,
     }
