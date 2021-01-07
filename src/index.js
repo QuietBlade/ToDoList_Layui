@@ -16,7 +16,7 @@ function init() {
         {
             index: 0, // 索引
             content: '今天要写1个bug',  // 正文
-            state: 0,   // 0 未完成  1 已完成
+            state: 1,   // 0 未完成  1 已完成
         }, {
             index: 1, // 索引
             content: '今天修复10个bug',  // 正文
@@ -66,9 +66,13 @@ function init() {
 // 添加/保存 事项
 function SaveItem(obj) {
     var data = getData()
-    
     json = {
-        index: data[data.length-1].index+1,  // 累加 index 避免冲突
+        index: () => {
+            if (data.length == 0)
+                return data.length
+            else
+                return data[data.length - 1].index + 1
+        },  // 累加 index 避免冲突 , 当 长度为 0 时 重置index
         content: obj.content,
         state: 0,
     }
@@ -78,11 +82,11 @@ function SaveItem(obj) {
 }
 
 // 删除 事项
-function DeleteItem(index){
+function DeleteItem(index) {
     var data = getData()
-    data.forEach( (obj,dex) => {
-        if( obj.index == index ){
-            data.splice(dex,1)
+    data.forEach((obj, dex) => {
+        if (obj.index == index) {
+            data.splice(dex, 1)
         }
     });
     setData(data)
@@ -92,7 +96,7 @@ function DeleteItem(index){
 function ChangeItem(obj, state) {
     var data = getData()
     data.forEach(d => {
-        if (obj.index == d.index){
+        if (obj.index == d.index) {
             d.state = state
         }
     });
@@ -100,10 +104,10 @@ function ChangeItem(obj, state) {
     setData(data)
 }
 
-function UpdateItem(obj){
+function UpdateItem(obj) {
     var data = getData()
-    data.forEach( d => {
-        if ( d.index == obj.index ){
+    data.forEach(d => {
+        if (d.index == obj.index) {
             d.content = obj.content
         }
     });
@@ -112,6 +116,6 @@ function UpdateItem(obj){
 }
 
 // 排序算法 好像没用到
-function SortItem(a,b){
-    return a.state-b.state
+function SortItem(a, b) {
+    return a.state - b.state
 }

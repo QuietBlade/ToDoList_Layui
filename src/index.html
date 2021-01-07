@@ -74,6 +74,12 @@
                 var form = layui.form
                 var $ = layui.jquery
 
+                function Refresh(){
+                    table.reload("content", {
+                        data: JSON.parse(window.localStorage.getItem("data"))
+                    });
+                }
+
                 table = $.extend(table, { config: { checkName: 'state' } });
                 var tableIns = table.render({
                     elem: '#content'
@@ -86,9 +92,13 @@
                     //         "data": JSON.parse(window.localStorage.getItem("data")) //解析数据列表
                     //     };
                     // }
+                    // 这里注释是 请求了 ajax 地址,如果要使用ajax,注释掉 data 数据就行
                     , data: JSON.parse(window.localStorage.getItem("data"))
                     , page: true
                     , limit: 30
+                    , text: {
+                        none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+                    }
                     , cols: [[
                         { type: 'checkbox', fixed: 'left' }
                         , { field: 'state', title: '状态', hide: true }
@@ -96,9 +106,14 @@
                         , { field: 'content', title: '正文', edit: 'text', templet: '#deleteTpl' }
                         , { fixed: 'right', title: '操作', toolbar: '#delItem', width: 80 }
                     ]]
-                    , initSort: {
-                        field: 'state' //排序字段，对应 cols 设定的各字段名
-                        , type: 'asc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+                    , initSort: () => {
+                        if (JSON.parse(window.localStorage.getItem("data"))) // 如果是空数组 ， 不进行数据排序 是因为如果初始数据为空，table无法显示 提示无数据信息
+                            return {} 
+                        else
+                            return {
+                                field: 'state' //排序字段，对应 cols 设定的各字段名
+                                , type: 'asc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+                            }
                     }
                 });
 
@@ -106,11 +121,10 @@
                 table.on('tool(content)', function (obj) {
                     var data = obj.data;
                     if (obj.event === 'del') {
-                        layer.confirm('真的要删除么', function (index) {
-                            obj.del();
-                            DeleteItem(data.index)
-                            layer.close(index);
-                        });
+                        layer.msg("删除成功")
+                        obj.del();
+                        DeleteItem(data.index)
+                        Refresh() // 刷新表单
                     }
                 });
 
@@ -118,6 +132,7 @@
                 table.on('edit(content)', function (obj) {
                     console.log(obj.data); //所在行的所有相关数据  
                     UpdateItem(obj.data)
+                    Refresh() // 刷新表单
                 });
 
                 // 监听复选框
@@ -138,11 +153,9 @@
                     // layer.msg(JSON.stringify(data.field))
                     SaveItem(data.field)
                     $('input').val('')
-                    layer.msg("添加成功")  // 重载表单数据
-                    table.reload("content", {
-                        data: JSON.parse(window.localStorage.getItem("data"))
-                    });
-                    return false;
+                    layer.msg("添加成功")
+                    Refresh()       // 刷新表单
+                    return false    // 阻止刷新页面
                 });
 
                 // 监听导航菜单
@@ -162,9 +175,7 @@
                     } else if (elem.text() == "所有事项") {
                         arr = getData()
                     }
-                    table.reload("content", {
-                        data: arr
-                    })
+                    Refresh() // 刷新表单
                     // layer.msg(elem.text());
                 });
             });
