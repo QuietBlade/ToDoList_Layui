@@ -175,7 +175,9 @@
                     } else if (elem.text() == "所有事项") {
                         arr = getData()
                     }
-                    Refresh() // 刷新表单
+                    table.reload("content", {
+                        data: arr
+                    });// 刷新表单
                     // layer.msg(elem.text());
                 });
             });
