@@ -97,7 +97,8 @@
                     // 这里注释是 请求了 ajax 地址,如果要使用ajax,注释掉 data 数据就行
                     , data: getData().sort(SortItem)  // 排序初始数据
                     , page: true
-                    , limit: 30
+                    , limit: 15
+                    , limits : [15,30,45,60,75,90]
                     , text: {
                         none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
                     }
