@@ -10,186 +10,238 @@
     <link rel="stylesheet" href="./index.css">
 </head>
 
-<body class="layui-layout-body">
-    <div class="layui-layout-admin">
-        <div class="layui-header" style="background-color: #ffffff;">
-            <div style="height:100%;width: 200px; background-color: #393D49!important;display: block;">
-            </div>
-        </div>
+<style>
+    @media screen and (max-width: 800px) {
 
-        <div class="layui-side layui-bg-black">
-            <div class="layui-side-scroll">
-                <ul class="layui-nav layui-nav-tree" lay-filter="navs">
-                    <li class="layui-nav-item layui-this">
-                        <a href="javascript:;">所有事项</a>
-                    </li>
-                    <li class="layui-nav-item">
-                        <a href="javascript:;">未完成</a>
-                    </li>
-                    <li class="layui-nav-item">
-                        <a href="javascript:;">已完成</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="layui-body">
-            <div class="layui-container">
-                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-                    <legend>ToDoList事项清单</legend>
-                </fieldset>
-                <form class="layui-form" action="">
-                    <div class="layui-form-item">
-                        <div class="layui-input-inline input" style="width: 80%;">
-                            <input type="text" name="content" required="" lay-verify="required" placeholder="输入想干的事情"
-                                autocomplete="off" class="layui-input">
+        .layui-side,
+        .layui-header {
+            width: 150px;
+            display: none;
+        }
 
-                        </div>
-                        <div class="layui-form-mid layui-word-aux">
-                            <button class="layui-btn" lay-submit="" lay-filter="saveItem">添加</button>
-                        </div>
+        .layui-body {
+            left: 10px;
+            right: -1;
+        }
+
+        .layui-input-inline {
+            display: inline-block !important;
+            float: left !important;
+            width: 80% !important;
+            margin: 0px !important;
+        }
+
+        .layui-form-mid {
+            margin: 0px !important;
+            margin-left: 2px !important;
+            padding: 0px 0 !important;
+        }
+
+        .layui-main {
+            width: auto !important;
+        }
+
+        #showNav{
+            display: inline !important;
+        }
+
+    }
+</style>
+
+<body>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree" lay-filter="navs" style="margin-top: 50px;">
+                <li class="layui-nav-item layui-this">
+                    <a href="javascript:;">所有事项</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">未完成</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">已完成</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <div>
+            <button type="button" class="layui-btn layui-btn-primary" id="showNav" display="false" style="display: none;"><i
+                    class="layui-icon">&#xe668;</i></button>
+        </div>
+        <div class="layui-container">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                <legend>ToDoList事项清单</legend>
+            </fieldset>
+            <form class="layui-form" action="">
+                <div class="layui-form-item">
+                    <div class="layui-input-inline input">
+                        <input type="text" name="content" required="" lay-verify="required" placeholder="输入想干的事情"
+                            autocomplete="off" class="layui-input">
                     </div>
-                </form>
-                <div class="layui-main" style="height:100%">
-                    <table id="content" lay-filter="content"></table>
+                    <div class="layui-form-mid layui-word-aux">
+                        <button class="layui-btn" lay-submit="" lay-filter="saveItem">添加</button>
+                    </div>
                 </div>
-                <script type="text/html" id="delItem">
+            </form>
+            <div class="layui-main" style="height:100%;width: auto;">
+                <table id="content" lay-filter="content"></table>
+            </div>
+            <script type="text/html" id="delItem">
                     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
                 </script>
-                <script type="text/html" id="deleteTpl">
+            <script type="text/html" id="deleteTpl">
                     {{#  if(d.state === 1){ }}
                       <span class="delete">{{ d.content }}</span>
                     {{#  } else { }}
                       {{ d.content }}
                     {{#  } }}
                 </script>
-            </div>
         </div>
-        <script src="./index.js" charset="utf-8"></script>
-        <!-- <script src="../../layui-v2.5.5/layui.js" charset="utf-8"></script> -->
-        <script src="https://www.layuicdn.com/layui-v2.5.6/layui.js "></script>
-        <script>
-            layui.use(['element', 'table'], function () {
-                var element = layui.element
-                var table = layui.table
-                var form = layui.form
-                var $ = layui.jquery
+    </div>
+    <script src="./index.js" charset="utf-8"></script>
+    <!-- <script src="../../layui-v2.5.5/layui.js" charset="utf-8"></script> -->
+    <script src="https://www.layuicdn.com/layui-v2.5.6/layui.js "></script>
+    <script>
+        layui.use(['element', 'table'], function () {
+            var element = layui.element
+            var table = layui.table
+            var form = layui.form
+            var $ = layui.jquery
 
-                function Refresh(obj) {
-                    if (obj == undefined)
-                        obj = {
-                            data: getData().sort(SortItem)
-                        }
-                    table.reload("content", obj);
+            // 适配手机端
+            $('#showNav').click( (obj)=>{
+                var status = eval($('#showNav').attr("display"))
+                if( !status ){
+                    $(".layui-side").show()
+                    $(".layui-body").css("left","150px")
+                }else{
+                    $(".layui-side").hide()
+                    $(".layui-body").css("left","10px")
                 }
+                $('#showNav').attr("display",!status)
+                Refresh()
+                return false
+            })
 
-                table = $.extend(table, { config: { checkName: 'state' } }); // 设置初始复选框状态
-                var tableIns = table.render({
-                    elem: '#content'
-                    // , url: './data.json' //数据接口
-                    // , parseData: function (res) {
-                    //     return {
-                    //         "code": res.code,
-                    //         "msg": res.msg,
-                    //         "count": res.count,
-                    //         "data": getData().sort(SortItem) //解析数据列表
-                    //     };
-                    // }
-                    // 这里注释是 请求了 ajax 地址,如果要使用ajax,注释掉 data 数据就行
-                    , data: getData().sort(SortItem)  // 排序初始数据
-                    , page: true
-                    , limit: 15
-                    , limits : [15,30,45,60,75,90]
-                    , text: {
-                        none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+            function Refresh(obj) {
+                if (obj == undefined)
+                    obj = {
+                        data: getData().sort(SortItem)
                     }
-                    , cols: [[
-                        { type: 'checkbox', fixed: 'left' }
-                        , { field: 'state', title: '状态', hide: true }
-                        , { field: 'index', title: 'id', hide: true }
-                        , { field: 'content', title: '正文', edit: 'text', templet: '#deleteTpl' }
-                        , { fixed: 'right', title: '操作', toolbar: '#delItem', width: 80 }
-                    ]]
-                    // , initSort: ({
-                    //     field: 'state' //排序字段，对应 cols 设定的各字段名
-                    //     , type: 'asc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
-                    // }) // 不进行数据排序 是因为如果初始数据为空，table无法显示 提示无数据信息
-                });
+                table.reload("content", obj);
+            }
 
-                // 监听删除工具栏
-                table.on('tool(content)', function (obj) {
-                    var data = obj.data;
-                    if (obj.event === 'del') {
-                        layer.msg("删除成功")
-                        obj.del();
-                        DeleteItem(data.index)
-                        // 获取当前导航页标签
-                        switchNav($('.layui-this').text().trim())
-                    }
-                });
+            table = $.extend(table, { config: { checkName: 'state' } }); // 设置初始复选框状态
+            var tableIns = table.render({
+                elem: '#content'
+                // , url: './data.json' //数据接口
+                // , parseData: function (res) {
+                //     return {
+                //         "code": res.code,
+                //         "msg": res.msg,
+                //         "count": res.count,
+                //         "data": getData().sort(SortItem) //解析数据列表
+                //     };
+                // }
+                // 这里注释是 请求了 ajax 地址,如果要使用ajax,注释掉 data 数据就行
+                , data: getData().sort(SortItem)  // 排序初始数据
+                // , page: true
+                , limit: 15
+                , limits: [15, 30, 45, 60, 75, 90]
+                , text: {
+                    none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+                }
+                , cols: [[
+                    { type: 'checkbox', fixed: 'left' }
+                    , { field: 'state', title: '状态', hide: true }
+                    , { field: 'index', title: 'id', hide: true }
+                    , { field: 'content', title: '正文', edit: 'text', templet: '#deleteTpl' }
+                    , { fixed: 'right', title: '操作', toolbar: '#delItem', width: 70 }
+                ]]
+                // , initSort: ({
+                //     field: 'state' //排序字段，对应 cols 设定的各字段名
+                //     , type: 'asc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+                // }) // 不进行数据排序 是因为如果初始数据为空，table无法显示 提示无数据信息
+            });
 
-                // 监听 编辑框事件
-                table.on('edit(content)', function (obj) {
-                    console.log(obj.data); //所在行的所有相关数据  
-                    UpdateItem(obj.data)
-                    switchNav($('.layui-this').text().trim()) // 根据当前导航刷新表单
-                });
-
-                // 监听复选框
-                table.on('checkbox(content)', function (obj) {
-                    // console.log(obj)
-                    temp = obj.tr[0]
-                    if (obj.checked) {
-                        temp.setAttribute("class", "delete")
-                        ChangeItem(obj.data, 1) // 更改为已完成
-                    } else {
-                        temp.removeAttribute("class")
-                        ChangeItem(obj.data, 0) // 更改为未完成
-                    }
-                    Refresh()
-                });
-
-                // 监听添加按钮
-                form.on('submit(saveItem)', function (data) {
-                    // layer.msg(JSON.stringify(data.field))
-                    SaveItem(data.field)
-                    $('input').val('')
-                    layer.msg("添加成功")
-                    switchNav($('.layui-this').text().trim())       // 根据当前导航刷新表单
-                    return false    // 阻止刷新页面
-                });
-
-                // 监听导航菜单
-                element.on('nav(navs)', function (elem) {
-                    switchNav(elem.text())
-                    // layer.msg(elem.text());
-                });
-
-                function switchNav(status) {
-                    var data = getData()
-                    var arr = []
-                    switch (status) {
-                        case "已完成":
-                            data.forEach(obj => {
-                                if (obj.state == 1)
-                                    arr.push(obj)
-                            });
-                            break
-                        case "未完成":
-                            data.forEach(obj => {
-                                if (obj.state == 0)
-                                    arr.push(obj)
-                            });
-                            break
-                        case "所有事项":
-                            arr = getData()
-                            break
-                    }
-                    Refresh({
-                        data: arr.sort(SortItem)
-                    });// 刷新表单
+            // 监听删除工具栏
+            table.on('tool(content)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'del') {
+                    layer.msg("删除成功")
+                    obj.del();
+                    DeleteItem(data.index)
+                    // 获取当前导航页标签
+                    switchNav($('.layui-this').text().trim())
                 }
             });
-        </script>
+
+            // 监听 编辑框事件
+            table.on('edit(content)', function (obj) {
+                console.log(obj.data); //所在行的所有相关数据  
+                UpdateItem(obj.data)
+                switchNav($('.layui-this').text().trim()) // 根据当前导航刷新表单
+            });
+
+            // 监听复选框
+            table.on('checkbox(content)', function (obj) {
+                // console.log(obj)
+                temp = obj.tr[0]
+                if (obj.checked) {
+                    temp.setAttribute("class", "delete")
+                    ChangeItem(obj.data, 1) // 更改为已完成
+                } else {
+                    temp.removeAttribute("class")
+                    ChangeItem(obj.data, 0) // 更改为未完成
+                }
+                Refresh()
+            });
+
+            // 监听添加按钮
+            form.on('submit(saveItem)', function (data) {
+                // layer.msg(JSON.stringify(data.field))
+                SaveItem(data.field)
+                $('input').val('')
+                layer.msg("添加成功")
+                switchNav($('.layui-this').text().trim())       // 根据当前导航刷新表单
+                return false    // 阻止刷新页面
+            });
+
+            // 监听导航菜单
+            element.on('nav(navs)', function (elem) {
+                switchNav(elem.text())
+                // layer.msg(elem.text());
+            });
+
+            function switchNav(status) {
+                var data = getData()
+                var arr = []
+                switch (status) {
+                    case "已完成":
+                        data.forEach(obj => {
+                            if (obj.state == 1)
+                                arr.push(obj)
+                        });
+                        break
+                    case "未完成":
+                        data.forEach(obj => {
+                            if (obj.state == 0)
+                                arr.push(obj)
+                        });
+                        break
+                    case "所有事项":
+                        arr = getData()
+                        break
+                }
+                Refresh({
+                    data: arr.sort(SortItem)
+                });// 刷新表单
+            }
+        });
+    </script>
 </body>
 
 </html>
