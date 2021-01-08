@@ -28,7 +28,7 @@ function init() {
         }, {
             index: 3,
             content: '今天要写10个bug',
-            state: 0,
+            state: 1,
         }, {
             index: 4,
             content: '今天要写10个bug',
@@ -104,6 +104,7 @@ function ChangeItem(obj, state) {
     setData(data)
 }
 
+// 更新操作
 function UpdateItem(obj) {
     var data = getData()
     data.forEach(d => {
@@ -112,10 +113,10 @@ function UpdateItem(obj) {
         }
     });
     console.log(data)
-    // setData(data)
+    setData(data)
 }
 
-// 排序算法 好像没用到
+// 用于排序数组数据
 function SortItem(a, b) {
     return a.state - b.state
 }

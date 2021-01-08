@@ -74,10 +74,12 @@
                 var form = layui.form
                 var $ = layui.jquery
 
-                function Refresh() {
-                    table.reload("content", {
-                        data: JSON.parse(window.localStorage.getItem("data"))
-                    });
+                function Refresh(obj) {
+                    if (obj == undefined)
+                        obj = {
+                            data: getData().sort(SortItem)
+                        }
+                    table.reload("content", obj);
                 }
 
                 table = $.extend(table, { config: { checkName: 'state' } }); // 设置初始复选框状态
@@ -89,11 +91,11 @@
                     //         "code": res.code,
                     //         "msg": res.msg,
                     //         "count": res.count,
-                    //         "data": getData() //解析数据列表
+                    //         "data": getData().sort(SortItem) //解析数据列表
                     //     };
                     // }
                     // 这里注释是 请求了 ajax 地址,如果要使用ajax,注释掉 data 数据就行
-                    , data: SortItem(getData())
+                    , data: getData().sort(SortItem)  // 排序初始数据
                     , page: true
                     , limit: 30
                     , text: {
@@ -106,26 +108,21 @@
                         , { field: 'content', title: '正文', edit: 'text', templet: '#deleteTpl' }
                         , { fixed: 'right', title: '操作', toolbar: '#delItem', width: 80 }
                     ]]
-                    ,done: function(res, curr, count){
-                        console.log(res)
-                        res.data = []
-                        return res
-                        // res.data = [{}]
-                    }
                     // , initSort: ({
                     //     field: 'state' //排序字段，对应 cols 设定的各字段名
                     //     , type: 'asc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
                     // }) // 不进行数据排序 是因为如果初始数据为空，table无法显示 提示无数据信息
                 });
 
-                // 监听工具栏
+                // 监听删除工具栏
                 table.on('tool(content)', function (obj) {
                     var data = obj.data;
                     if (obj.event === 'del') {
                         layer.msg("删除成功")
                         obj.del();
                         DeleteItem(data.index)
-                        Refresh() // 刷新表单
+                        // 获取当前导航页标签
+                        switchNav($('.layui-this').text().trim())
                     }
                 });
 
@@ -133,7 +130,7 @@
                 table.on('edit(content)', function (obj) {
                     console.log(obj.data); //所在行的所有相关数据  
                     UpdateItem(obj.data)
-                    Refresh() // 刷新表单
+                    switchNav($('.layui-this').text().trim()) // 根据当前导航刷新表单
                 });
 
                 // 监听复选框
@@ -156,32 +153,40 @@
                     SaveItem(data.field)
                     $('input').val('')
                     layer.msg("添加成功")
-                    Refresh()       // 刷新表单
+                    switchNav($('.layui-this').text().trim())       // 根据当前导航刷新表单
                     return false    // 阻止刷新页面
                 });
 
                 // 监听导航菜单
                 element.on('nav(navs)', function (elem) {
-                    var data = getData()
-                    var arr = []
-                    if (elem.text() == "已完成") {
-                        data.forEach(obj => {
-                            if (obj.state == 1)
-                                arr.push(obj)
-                        });
-                    } else if (elem.text() == "未完成") {
-                        data.forEach(obj => {
-                            if (obj.state == 0)
-                                arr.push(obj)
-                        });
-                    } else if (elem.text() == "所有事项") {
-                        arr = getData()
-                    }
-                    table.reload("content", {
-                        data: arr
-                    });// 刷新表单
+                    switchNav(elem.text())
                     // layer.msg(elem.text());
                 });
+
+                function switchNav(status) {
+                    var data = getData()
+                    var arr = []
+                    switch (status) {
+                        case "已完成":
+                            data.forEach(obj => {
+                                if (obj.state == 1)
+                                    arr.push(obj)
+                            });
+                            break
+                        case "未完成":
+                            data.forEach(obj => {
+                                if (obj.state == 0)
+                                    arr.push(obj)
+                            });
+                            break
+                        case "所有事项":
+                            arr = getData()
+                            break
+                    }
+                    Refresh({
+                        data: arr.sort(SortItem)
+                    });// 刷新表单
+                }
             });
         </script>
 </body>
